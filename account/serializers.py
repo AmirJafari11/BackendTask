@@ -4,6 +4,18 @@ from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 
+class UserSerializer(serializers.ModelSerializer):
+    """
+        This serializer is for serializing and deserializing the data of model 'User'.
+    """
+
+    class Meta:
+        model = User
+        # fields = '__all__'
+        fields = ['username', 'first_name', 'last_name', 'is_staff']
+        # exclude = ('password', 'last_login', 'is_superuser', 'is_active', 'date_joined', 'groups', 'user_permissions')
+
+
 class RegisterSerializer(serializers.Serializer):
     """
         This serializer returns us a form involves "username", "password1" and "password2" for registration.
@@ -15,14 +27,12 @@ class RegisterSerializer(serializers.Serializer):
     password1 = serializers.CharField(label='password')
     password2 = serializers.CharField(label='confirm password')
 
-    # ++++
     def validate_username(self, value):
         user = User.objects.filter(username=value).exists()
         if user:
             raise ValidationError("This username already exists")
         return value
 
-    # ++++
     def validate(self, data):
         password1_value = data.get('password1')
         password2_value = data.get('password2')
@@ -31,7 +41,6 @@ class RegisterSerializer(serializers.Serializer):
             raise ValidationError("The passwords must match")
         return data
 
-    # ++++
     def create(self, validated_data):
         user = User.objects.create_user(username=validated_data['username'],
                                         password=validated_data['password1']),
@@ -66,4 +75,3 @@ class LogoutSerializer(serializers.Serializer):
         This serializer returns us a form involves "refresh_token" for logout.
     """
     refresh_token = serializers.CharField()
-
