@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+
+import rest_framework.permissions
 from decouple import config
 import redis as redis
 from datetime import timedelta
@@ -42,9 +44,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'product.apps.ProductConfig',
+    'drf_yasg',
+
     'rest_framework',
     'rest_framework_simplejwt',
+
+    'product.apps.ProductConfig',
+    'account.apps.AccountConfig',
 
 ]
 
@@ -133,6 +139,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_ROOT = BASE_DIR / 'media/'
+MEDIA_URL = '/media/'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -143,7 +152,9 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         # ...
     ],
-    # ...
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ]
 }
 
 SIMPLE_JWT = {
@@ -157,6 +168,8 @@ REDIS_PORT = config('REDIS_PORT')
 REDIS_REFRESH_TIME = 24 * (60 * 60)
 REDIS_JWT_TOKEN = redis.StrictRedis(host=REDIS_HOST,
                                     port=REDIS_PORT, db=0)
+
+
 
 
 

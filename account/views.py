@@ -6,7 +6,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-from .serializers import RegisterSerializer, LoginSerializer, LoginSerializerCreateAccessToken, LogoutSerializer
+from .serializers import RegisterSerializer, LoginSerializer, LoginSerializerCreateAccessToken, LogoutSerializer, \
+                         UserSerializer
 from .utils import token_for_user_as_login
 from BackendTask.settings import REDIS_JWT_TOKEN, REDIS_REFRESH_TIME
 
@@ -21,15 +22,19 @@ class RegisterAPIView(APIView):
     serializer_class = RegisterSerializer
 
     def get(self, request: Request) -> Response:
-        serializer = self.serializer_class()
-        return Response(serializer.data)
+        users = User.objects.all()
+        serializer = UserSerializer(instance=users, many=True)
+        return Response(data=serializer.data,
+                        status=status.HTTP_200_OK)
 
     def post(self, request: Request) -> Response:
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "You are registered successfully"})
-        return Response({"message": "The passwords do not match."})
+            return Response(data={"message": "You are registered successfully"},
+                            status=status.HTTP_201_CREATED)
+        return Response(data={"message": "The passwords do not match."},
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 # ===================================================================================
@@ -58,12 +63,15 @@ class LoginAPIView(APIView):
                     "access": access_token,
                     "refresh": REDIS_JWT_TOKEN.get(refresh_token)
                 }
-                return Response({'Token': data}, status.HTTP_201_CREATED)
+                return Response(data={'Token': data},
+                                status=status.HTTP_201_CREATED)
             else:
-                return Response({"message": "Username or Password is Wrong."}, status.HTTP_400_BAD_REQUEST)
+                return Response(data={"message": "Username or Password is Wrong."},
+                                status=status.HTTP_400_BAD_REQUEST)
 
         except User.DoesNotExist:
-            return Response({"message": "You cannot login. First Register."}, status.HTTP_400_BAD_REQUEST)
+            return Response(data={"message": "You cannot login. First Register."},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginAPIViewCreateAccess(APIView):
@@ -89,9 +97,12 @@ class LoginAPIViewCreateAccess(APIView):
                 "new access": access_token,
                 "new refresh": REDIS_JWT_TOKEN.get(refresh_token)
             }
-            return Response({'Token': data}, status.HTTP_201_CREATED)
-        except Exception:
-            return Response({"message": "Token is expired"})
+            return Response(data={'Token': data},
+                            status=status.HTTP_201_CREATED)
+        except Exception as e:
+            error_message = str(e)
+            return Response(data={"message": "Token is expired", "error_message": error_message},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 # --------------------------------------------------------------------------
@@ -111,5 +122,3 @@ class LogoutAPIView(APIView):
             return Response({"message": "You are logged out successfully"})
         else:
             return Response({"message": "There is no refresh token in redis"})
-#
-#
