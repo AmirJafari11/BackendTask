@@ -11,7 +11,7 @@ class CustomPagination(PageNumberPagination):
     page_size_query_param = 'page_size'  # Custom query parameter to override page size
     max_page_size = 100  # Maximum page size allowed
 
-    def get_page_size(self, request: Request):
+    def get_page_size(self, request: Request) -> int:
 
         if request.user.is_superuser:
             self.max_page_size = 1000
