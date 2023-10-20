@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.utils.translation import gettext as _
 
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from rest_framework.views import APIView
@@ -31,9 +32,9 @@ class RegisterAPIView(APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(data={"message": "You are registered successfully"},
+            return Response(data={"message": _("You are registered successfully")},
                             status=status.HTTP_201_CREATED)
-        return Response(data={"message": "The passwords do not match."},
+        return Response(data={"message": _("The passwords do not match.")},
                         status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -66,11 +67,11 @@ class LoginAPIView(APIView):
                 return Response(data={'Token': data},
                                 status=status.HTTP_201_CREATED)
             else:
-                return Response(data={"message": "Username or Password is Wrong."},
+                return Response(data={"message": _("Username or Password is Wrong.")},
                                 status=status.HTTP_400_BAD_REQUEST)
 
         except User.DoesNotExist:
-            return Response(data={"message": "You cannot login. First Register."},
+            return Response(data={"message": _("You cannot login. First Register.")},
                             status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -101,7 +102,7 @@ class LoginAPIViewCreateAccess(APIView):
                             status=status.HTTP_201_CREATED)
         except Exception as e:
             error_message = str(e)
-            return Response(data={"message": "Token is expired", "error_message": error_message},
+            return Response(data={"message": _("Token is expired"), "error_message": error_message},
                             status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -119,6 +120,6 @@ class LogoutAPIView(APIView):
         refresh_token = request.data['refresh_token']
         if REDIS_JWT_TOKEN.exists(refresh_token):
             REDIS_JWT_TOKEN.delete(refresh_token)
-            return Response({"message": "You are logged out successfully"})
+            return Response({"message": _("You are logged out successfully")})
         else:
-            return Response({"message": "There is no refresh token in redis"})
+            return Response({"message": _("There is no refresh token in redis")})

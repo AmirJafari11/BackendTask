@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
 from rest_framework import serializers
 
@@ -30,7 +31,7 @@ class RegisterSerializer(serializers.Serializer):
     def validate_username(self, value):
         user = User.objects.filter(username=value).exists()
         if user:
-            raise ValidationError("This username already exists")
+            raise ValidationError(_("This username already exists"))
         return value
 
     def validate(self, data):
@@ -38,7 +39,7 @@ class RegisterSerializer(serializers.Serializer):
         password2_value = data.get('password2')
 
         if password1_value and password2_value and password1_value != password2_value:
-            raise ValidationError("The passwords must match")
+            raise ValidationError(_("The passwords must match"))
         return data
 
     def create(self, validated_data):
