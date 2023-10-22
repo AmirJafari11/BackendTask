@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 from rest_framework import serializers
@@ -12,10 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        # fields = '__all__'
         fields = ['username', 'first_name', 'last_name', 'is_staff']
-        # exclude = ('password', 'last_login', 'is_superuser', 'is_active', 'date_joined', 'groups', 'user_permissions')
-
 
 class RegisterSerializer(serializers.Serializer):
     """
@@ -31,7 +27,7 @@ class RegisterSerializer(serializers.Serializer):
     def validate_username(self, value):
         user = User.objects.filter(username=value).exists()
         if user:
-            raise ValidationError(_("This username already exists"))
+            raise serializers.ValidationError(_("This username already exists"))
         return value
 
     def validate(self, data):
@@ -39,7 +35,7 @@ class RegisterSerializer(serializers.Serializer):
         password2_value = data.get('password2')
 
         if password1_value and password2_value and password1_value != password2_value:
-            raise ValidationError(_("The passwords must match"))
+            raise serializers.ValidationError(_("The passwords must match"))
         return data
 
     def create(self, validated_data):
@@ -47,8 +43,8 @@ class RegisterSerializer(serializers.Serializer):
                                         password=validated_data['password1']),
         return user
 
-
 # --------------------------------------------------------------------------------------------------
+
 
 class LoginSerializer(serializers.ModelSerializer):
     """

@@ -11,13 +11,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-
-import rest_framework.permissions
 from decouple import config
-import redis as redis
 from datetime import timedelta
-
-import product.permissions
+import redis as redis
+import rest_framework.permissions
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -52,6 +50,7 @@ INSTALLED_APPS = [
 
     'product.apps.ProductConfig',
     'account.apps.AccountConfig',
+    'core.apps.CoreConfig',
 
 ]
 
@@ -128,7 +127,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
 
@@ -148,8 +148,6 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# from product.permissions import IsSuperUserOrStaff
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -161,14 +159,19 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(hours=24),
 }
 
+# Swagger
+SWAGGER_SETTINGS = {
+        'LOGIN_URL': '/api-auth/login/',
+        'LOGOUT_URL': '/api-auth/logout/',
+}
+
+LOCALE_PATHS = (
+    os.path.join(os.path.dirname(__file__), "locale"),
+)
+
 # redis jwt token
 REDIS_HOST = config('REDIS_HOST')
 REDIS_PORT = config('REDIS_PORT')
 REDIS_REFRESH_TIME = 24 * (60 * 60)
 REDIS_JWT_TOKEN = redis.StrictRedis(host=REDIS_HOST,
                                     port=REDIS_PORT, db=0)
-
-
-
-
-
