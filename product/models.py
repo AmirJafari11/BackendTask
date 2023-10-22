@@ -21,7 +21,7 @@ class ProductCategory(models.Model):
 
 
 class Product(models.Model):
-    p_name = models.CharField(max_length=100, db_index=True, verbose_name=_('name'), unique=True)
+    p_name = models.CharField(max_length=100, db_index=True, unique=True, verbose_name=_('name'))
     p_description = models.TextField(blank=True, null=True, verbose_name=_('description'))
     p_price = models.IntegerField(db_index=True, verbose_name=_('price'))
     p_index_image = models.ImageField(upload_to='images/', null=True, blank=True)
