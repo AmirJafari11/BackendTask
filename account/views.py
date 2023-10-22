@@ -10,6 +10,7 @@ from rest_framework import status
 from .serializers import RegisterSerializer, LoginSerializer, LoginSerializerCreateAccessToken, LogoutSerializer, \
                          UserSerializer
 from .utils import token_for_user_as_login
+from core.utils import translate
 from BackendTask.settings import REDIS_JWT_TOKEN, REDIS_REFRESH_TIME
 
 
@@ -29,14 +30,12 @@ class RegisterAPIView(APIView):
                         status=status.HTTP_200_OK)
 
     def post(self, request: Request) -> Response:
+        translate(request)
         serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(data={"message": _("You are registered successfully")},
-                            status=status.HTTP_201_CREATED)
-        return Response(data={"message": _("The passwords do not match.")},
-                        status=status.HTTP_400_BAD_REQUEST)
-
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(data={"message": _("You are registered successfully")},
+                        status=status.HTTP_201_CREATED)
 
 # ===================================================================================
 
@@ -48,6 +47,7 @@ class LoginAPIView(APIView):
     serializer_class = LoginSerializer
 
     def post(self, request: Request) -> Response:
+        translate(request)
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid()
         try:
@@ -82,6 +82,7 @@ class LoginAPIViewCreateAccess(APIView):
     serializer_class = LoginSerializerCreateAccessToken
 
     def post(self, request: Request) -> Response:
+        translate(request)
         try:
             token = request.data['refresh_token']
             REDIS_JWT_TOKEN.delete(token)
@@ -116,6 +117,7 @@ class LogoutAPIView(APIView):
     serializer_class = LogoutSerializer
 
     def post(self, request: Request) -> Response:
+        translate(request)
         serializer = self.serializer_class(data=request.data)
         refresh_token = request.data['refresh_token']
         if REDIS_JWT_TOKEN.exists(refresh_token):
