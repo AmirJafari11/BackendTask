@@ -11,6 +11,7 @@ from .serializers import ProductSerializer, ProductCategorySerializer
 from .models import ProductCategory, Product
 from .permissions import IsSuperUserOrStaff
 from .utils import CustomPagination
+from core.utils import translate
 
 
 class ProductCategoryAPIView(APIView):
@@ -26,6 +27,7 @@ class ProductCategoryAPIView(APIView):
                         status=status.HTTP_200_OK)
 
     def post(self, request: Request) -> Response:
+        translate(request)
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid()
         serializer.save()
@@ -35,12 +37,13 @@ class ProductCategoryAPIView(APIView):
 
 class ProductAPIView(APIView):
     """
-        List all Products, or create a new product.
+        Create a new product.
     """
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
     serializer_class = ProductSerializer
 
     def post(self, request: Request) -> Response:
+        translate(request)
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -68,6 +71,7 @@ class ProductDetailAPIView(APIView):
                         status=status.HTTP_200_OK)
 
     def put(self, request: Request, slug) -> Response:
+        translate(request)
         product = self.get_object(slug)
         serializer = self.serializer_class(instance=product, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -83,6 +87,7 @@ class DeleteDetailAPIView(APIView):
     permission_classes = [IsSuperUserOrStaff]
 
     def delete(self, request: Request, product_id: int) -> Response:
+        translate(request)
         try:
             product = Product.objects.get(id=product_id)
 
